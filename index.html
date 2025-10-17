@@ -3,15 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Music Test</title>
+<title>Music + ASCII Art</title>
 <style>
   body {
     background: white;
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
   }
 
+  /* Music box (top-left corner) */
   .music-box {
     position: fixed;
     top: 10px;
@@ -43,6 +48,17 @@
     to { text-shadow: 0 0 10px #bbb, 0 0 20px #999; }
   }
 
+  /* Big ASCII box */
+  .ascii-box {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.25);
+    text-align: left;
+    white-space: pre;
+    font-size: 16px;
+  }
+
   audio {
     display: none;
   }
@@ -50,11 +66,25 @@
 </head>
 <body>
 
+<!-- Music box -->
 <div class="music-box">
   <div class="disc">💿</div>
   <div>Whitespace – OMOCAT</div>
 </div>
 
+<!-- ASCII Art Box -->
+<div class="ascii-box">
+'::.
+    _________H ,%%&%,
+   /\     _   \%&&%%&%
+  /  \___/^\___\%&%%&&
+  |  | []   [] |%\Y&%'
+  |  |   .-.   | ||  
+~~@._|@@_|||_@@|~||~~~~~~~~~~~~~
+     `""") )"""`
+</div>
+
+<!-- Audio -->
 <audio id="music" src="whitespace.mp3" autoplay loop></audio>
 
 <script>
