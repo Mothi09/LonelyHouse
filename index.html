@@ -1,125 +1,74 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ASCII House + Choppy Wave Text</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Test</title>
 <style>
-  :root{
-    --bg: #f76d99;
-    --box: #ffadad;
-    --text: #000;
+  body {
+    background: white;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
   }
 
-  /* Page layout */
-  html,body{
-    height:100%;
-    margin:0;
-    background:var(--bg);
-    font-family: "Courier New", monospace;
-    color:var(--text);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    gap:30px;
-    padding:40px;
-    box-sizing:border-box;
+  .music-box {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: white;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: black;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   }
 
-  /* ASCII big box */
-  .big-box{
-    background:var(--box);
-    border-radius:15px;
-    padding:28px;
-    max-width:95%;
-    box-shadow:0 8px 18px rgba(0,0,0,.35);
-    white-space:pre;
-    text-align:left;
-    display:inline-block;
+  .disc {
+    display: inline-block;
+    font-size: 22px;
+    animation: spin 2s linear infinite, glow 1.5s ease-in-out infinite alternate;
   }
 
-  /* Wave container */
-  .wave-wrap{
-    display:block;
-    text-align:center;
-    margin-top:6px;
-    user-select:none;
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 
-  /* Each letter span */
-  .wave-wrap .letter{
-    display:inline-block;
-    transform:translateY(0);
-    /* choppy animation (instant jump) */
-    animation-name:hop;
-    animation-duration:800ms;        /* overall speed */
-    animation-iteration-count:infinite;
-    animation-timing-function:steps(1); /* makes it jump, not smooth */
-    will-change:transform;
-    font-size:20px;
-    line-height:1;
-    padding:0 1px;
+  @keyframes glow {
+    from { text-shadow: 0 0 4px #ccc, 0 0 8px #ddd; }
+    to { text-shadow: 0 0 10px #bbb, 0 0 20px #999; }
   }
 
-  /* keyframes: 0 -> up -> back */
-  @keyframes hop {
-    0%   { transform: translateY(0); }
-    50%  { transform: translateY(-14px); }
-    100% { transform: translateY(0); }
-  }
-
-  /* You can make the wave steeper on small screens */
-  @media (max-width:420px){
-    .wave-wrap .letter { animation-duration:900ms; font-size:18px; }
+  audio {
+    display: none;
   }
 </style>
 </head>
 <body>
 
-<!-- ASCII House -->
-<div class="big-box" aria-hidden="true">
-'::.
-    _________H ,%%&%,
-   /\     _   \%&&%%&%
-  /  \___/^\___\%&%%&&
-  |  | []   [] |%\Y&%'
-  |  |   .-.   | ||  
-~~@._|@@_|||_@@|~||~~~~~~~~~~~~~
-     `""") )"""`
+<div class="music-box">
+  <div class="disc">💿</div>
+  <div>Whitespace – OMOCAT</div>
 </div>
 
-<!-- Wave Text (will be split into per-letter spans automatically) -->
-<!-- Change the inner text to whatever you want to wave -->
-<div class="wave-wrap" id="choppyWave">You've been here before.</div>
+<audio id="music" src="whitespace.mp3" autoplay loop></audio>
 
 <script>
-  // Splits the text content of an element into spans (one per character)
-  // and sets staggered animation delays so letters form a wave.
-  (function createChoppyWave(id, options){
-    const el = document.getElementById(id);
-    if(!el) return;
-    const text = el.textContent || "";
-    el.textContent = ""; // clear
+  const audio = document.getElementById('music');
 
-    // settings (feel free to change)
-    const speed = (options && options.speed) || 800;        // ms per cycle (matches CSS .letter animation-duration)
-    const delayStep = (options && options.delayStep) || 70; // ms delay between letters
-    const maxOffset = (options && options.maxOffset) || 8;  // how many letters the wave spans (affects delay wrap)
+  // Try autoplay
+  audio.play().catch(() => {
+    console.log("Autoplay blocked — will start on first click.");
+  });
 
-    // Create span for each char
-    Array.from(text).forEach((char, i) => {
-      const span = document.createElement('span');
-      span.className = 'letter';
-      span.textContent = char;
-      // compute delay so a wave moves left-to-right and wraps
-      const delay = (i % (maxOffset*2)) * delayStep;
-      // set animation-duration so JS and CSS duration match if changed
-      span.style.animationDuration = speed + 'ms';
-      span.style.animationDelay = delay + 'ms';
-      el.appendChild(span);
-    });
-  })('choppyWave', { speed: 800, delayStep: 70, maxOffset: 10 });
+  // Fallback if blocked
+  document.addEventListener('click', () => {
+    audio.play().catch(() => {});
+  });
 </script>
 
 </body>
