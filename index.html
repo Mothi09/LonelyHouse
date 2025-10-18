@@ -1,79 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Music + ASCII Art</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ASCII House + Music + Choppy Wave</title>
 <style>
-  body {
-    background: white;
-    margin: 0;
-    padding: 0;
-    font-family: monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  :root{
+    --bg: #ffffff;
+    --box: #ffffff;
+    --text: #000000;
   }
 
-  /* Music box (top-left corner) */
+  /* Page layout */
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    font-family: "Courier New", monospace;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 28px;
+    padding: 40px;
+    box-sizing: border-box;
+  }
+
+  /* Music indicator in upper-left */
   .music-box {
     position: fixed;
-    top: 10px;
-    left: 10px;
-    background: white;
-    padding: 10px 15px;
-    border-radius: 12px;
-    font-size: 14px;
-    color: black;
+    top: 12px;
+    left: 12px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    gap: 8px;
+    background: var(--box);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    z-index: 9999;
+    user-select: none;
   }
-
-  .disc {
+  .music-box .disc {
     display: inline-block;
-    font-size: 22px;
-    animation: spin 2s linear infinite, glow 1.5s ease-in-out infinite alternate;
+    font-size: 20px;
+    animation: spin 2s linear infinite, glow 1.6s ease-in-out infinite alternate;
+    transform-origin: 50% 50%;
   }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   @keyframes glow {
-    from { text-shadow: 0 0 4px #ccc, 0 0 8px #ddd; }
-    to { text-shadow: 0 0 10px #bbb, 0 0 20px #999; }
+    from { text-shadow: 0 0 4px #bbb, 0 0 8px #ddd; }
+    to   { text-shadow: 0 0 10px #999, 0 0 20px #bbb; }
   }
 
   /* Big ASCII box */
   .ascii-box {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.25);
+    background: var(--box);
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.14);
     text-align: left;
     white-space: pre;
     font-size: 16px;
+    max-width: 95%;
+    display: inline-block;
   }
 
-  audio {
-    display: none;
+  /* Wave text container */
+  .wave-wrap {
+    display: block;
+    text-align: center;
+    user-select: none;
+    font-family: "Courier New", monospace;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  /* Letter spans: choppy hop using steps(1) */
+  .wave-wrap .letter {
+    display: inline-block;
+    transform: translateY(0);
+    animation-name: hop;
+    animation-iteration-count: infinite;
+    animation-timing-function: steps(1);
+    will-change: transform;
+    padding: 0 1px;
+  }
+
+  @keyframes hop {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-14px); }
+    100% { transform: translateY(0); }
+  }
+
+  /* Hide native audio UI */
+  audio { display: none; }
+
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    .ascii-box { padding: 18px; font-size: 14px; }
+    .wave-wrap { font-size: 18px; }
+    .music-box { font-size: 13px; padding: 6px 10px; }
+    .music-box .disc { font-size: 18px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Music box -->
-<div class="music-box">
-  <div class="disc">💿</div>
-  <div>Whitespace – OMOCAT</div>
+<!-- Music box (upper-left) -->
+<div class="music-box" role="status" aria-live="polite">
+  <span class="disc" aria-hidden="true">💿</span>
+  <span>Whitespace — OMOCAT</span>
 </div>
 
-<!-- ASCII Art Box -->
-<div class="ascii-box">
+<!-- ASCII art -->
+<div class="ascii-box" aria-hidden="true">
 '::.
     _________H ,%%&%,
    /\     _   \%&&%%&%
@@ -84,22 +129,23 @@
      `""") )"""`
 </div>
 
-<!-- Audio -->
-<audio id="music" src="whitespace.mp3" autoplay loop></audio>
+<!-- Choppy wave text (change content as needed) -->
+<div class="wave-wrap" id="choppyWave">WELCOME TO MOTHCAVE</div>
+
+<!-- Audio element (replace src with your mp3 file path or full URL) -->
+<audio id="bg-audio" src="whitespace.mp3" autoplay loop></audio>
 
 <script>
-  const audio = document.getElementById('music');
+  // ========== Choppy wave: split text into per-letter spans with staggered delays ==========
+  (function createChoppyWave(id, opts){
+    const el = document.getElementById(id);
+    if(!el) return;
+    const text = el.textContent || "";
+    el.textContent = "";
 
-  // Try autoplay
-  audio.play().catch(() => {
-    console.log("Autoplay blocked — will start on first click.");
-  });
+    // options: duration (ms), delayStep (ms), waveSpan (how many letters before wrap)
+    const duration = (opts && opts.duration) || 800;    // matches CSS hop keyframes cycle
+    const delayStep = (opts && opts.delayStep) || 70;   // stagger between letters
+    const waveSpan = (opts && opts.waveSpan) || 10;     // wave length (letters)
 
-  // Fallback if blocked
-  document.addEventListener('click', () => {
-    audio.play().catch(() => {});
-  });
-</script>
-
-</body>
-</html>
+    Array.from(t
